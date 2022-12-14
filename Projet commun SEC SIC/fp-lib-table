@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name "eec")(type "KiCad")(uri "C:/Users/thoma/Downloads/IC_National Semiconductor_LM1117IMP-5.0/eec.pretty")(options "")(descr ""))
+)
