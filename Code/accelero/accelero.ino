@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
-#include <utility/imumaths.h>
+// #include <utility/imumaths.h>
 
 /* This driver uses the Adafruit unified sensor library (Adafruit_Sensor),
    which provides a common 'type' for sensor data and some helper functions.
@@ -36,7 +36,7 @@ Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28, &Wire);
 
 void setup(void)
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   while (!Serial) delay(10);  // wait for serial port to open!
 
@@ -50,7 +50,7 @@ void setup(void)
     while (1);
   }
 
-  delay(1000);
+  delay(2000);
 }
 
 void loop(void)

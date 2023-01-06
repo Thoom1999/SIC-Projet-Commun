@@ -17,7 +17,7 @@ void setup()
 
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
-  Serial.begin(115200);
+  Serial.begin(9600);
   delay(5000);
   Serial.println("Adafruit GPS library basic parsing test!");
 
@@ -58,7 +58,7 @@ void loop()                     // run over and over again
     timer = millis(); // reset the timer
 
     Serial.println(GPS.milliseconds);
-    Serial.print("Fix: "); Serial.print((int)GPS.fix);
+    Serial.print("Fix: "); Serial.println((int)GPS.fix);
     if (GPS.fix) {
       Serial.print("Location: ");
       Serial.print(GPS.latitude, 4); 
