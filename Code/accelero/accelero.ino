@@ -1,6 +1,8 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
+#include <SPI.h>
+#include <SD.h>
 // #include <utility/imumaths.h>
 
 /* This driver uses the Adafruit unified sensor library (Adafruit_Sensor),
@@ -34,50 +36,108 @@ uint16_t BNO055_SAMPLERATE_DELAY_MS = 500;
 //                                   id, address
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28, &Wire);
 
+File myFile;
+
+
 void setup(void)
 {
   Serial.begin(9600);
 
   while (!Serial) delay(10);  // wait for serial port to open!
 
-  Serial.println("Orientation Sensor Test"); Serial.println("");
+  Serial.println(F("Orientation Sensor Test")); Serial.println(F(""));
 
   /* Initialise the sensor */
   if (!bno.begin())
   {
     /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    Serial.print(F("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!"));
     while (1);
   }
 
   delay(2000);
+
+
+  /* Initialise the SD card */
+  Serial.print(F("Initializing SD card..."));
+
+  if (!SD.begin(4)) {
+    Serial.println(F("initialization failed!"));
+    while (1);
+  }
+  Serial.println(F("initialization done."));
+  delay(1000);
 }
 
 void loop(void)
 {
   //could add VECTOR_ACCELEROMETER, VECTOR_MAGNETOMETER,VECTOR_GRAVITY...
   // sensors_event_t orientationData , angVelocityData , linearAccelData, magnetometerData, accelerometerData, gravityData;
+
+  myFile = SD.open("test.txt", FILE_WRITE);
+
   sensors_event_t orientationData, accelerometerData;
-  bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
-  bno.getEvent(&accelerometerData, Adafruit_BNO055::VECTOR_ACCELEROMETER);
+    bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+    bno.getEvent(&accelerometerData, Adafruit_BNO055::VECTOR_ACCELEROMETER);
+    sensors_event_t *a = &accelerometerData;
+    sensors_event_t *o = &orientationData;
+    
+    double x = -1000000, y = -1000000 , z = -1000000; //dumb values, easy to spot problem
+  
+    myFile.print(F("Accl:"));
+    Serial.print(F("Accl:"));
+    x = a->acceleration.x;
+    y = a->acceleration.y;
+    z = a->acceleration.z;
+  
+    myFile.print(F("Orient:"));
+    Serial.print(F("Orient:"));
 
-  printEvent(&orientationData);
-  printEvent(&accelerometerData);
+    x = o->orientation.x;
+    y = o->orientation.y;
+    z = o->orientation.z;
+  
 
-  Serial.println("--");
+    myFile.print(F("\tx= "));
+    myFile.print(x);
+    myFile.print(F(" |\ty= "));
+    myFile.print(y);
+    myFile.print(F(" |\tz= "));
+    myFile.println(z);
+
+    Serial.print(F("\tx= "));
+    Serial.print(x);
+    Serial.print(F(" |\ty= "));
+    Serial.print(y);
+    Serial.print(F(" |\tz= "));
+    Serial.println(z);
+    // printEvent(&orientationData);
+    // printEvent(&accelerometerData);
+  
+  
+
+  // sensors_event_t orientationData, accelerometerData;
+  // bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+  // bno.getEvent(&accelerometerData, Adafruit_BNO055::VECTOR_ACCELEROMETER);
+
+  // printEvent(&orientationData);
+  // printEvent(&accelerometerData);
+
+  Serial.println(F("--"));
   delay(BNO055_SAMPLERATE_DELAY_MS);
+  myFile.close();
 }
 
 void printEvent(sensors_event_t* event) {
   double x = -1000000, y = -1000000 , z = -1000000; //dumb values, easy to spot problem
   if (event->type == SENSOR_TYPE_ACCELEROMETER) {
-    Serial.print("Accl:");
+    Serial.print(F("Accl:"));
     x = event->acceleration.x;
     y = event->acceleration.y;
     z = event->acceleration.z;
   }
   else if (event->type == SENSOR_TYPE_ORIENTATION) {
-    Serial.print("Orient:");
+    Serial.print(F("Orient:"));
     x = event->orientation.x;
     y = event->orientation.y;
     z = event->orientation.z;
@@ -86,11 +146,11 @@ void printEvent(sensors_event_t* event) {
     Serial.print("Unk:");
   }
 
-  Serial.print("\tx= ");
+  Serial.print(F("\tx= "));
   Serial.print(x);
-  Serial.print(" |\ty= ");
+  Serial.print(F(" |\ty= "));
   Serial.print(y);
-  Serial.print(" |\tz= ");
+  Serial.print(F(" |\tz= "));
   Serial.println(z);
 }
 

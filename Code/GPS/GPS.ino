@@ -1,6 +1,7 @@
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
-
+#include <SPI.h>
+#include <SD.h>
 // Connect the GPS Power pin to 5V
 // Connect the GPS Ground pin to ground
 // Connect the GPS TX (transmit) pin to Digital 8
@@ -11,6 +12,8 @@ SoftwareSerial mySerial(8, 7);
 Adafruit_GPS GPS(&mySerial);
 
 #define GPSECHO false
+
+File myFile;
 
 void setup()
 {
@@ -36,11 +39,26 @@ void setup()
   delay(1000);
   // Ask for firmware version
   mySerial.println(PMTK_Q_RELEASE);
+
+
+  /* Initialise the SD card */
+  Serial.print(F("Initializing SD card..."));
+
+  if (!SD.begin(4)) {
+    Serial.println(F("initialization failed!"));
+    while (1);
+  }
+  Serial.println(F("initialization done."));
+
+  delay(1000);
+
 }
+
 
 uint32_t timer = millis();
 void loop()                     // run over and over again
 {
+
   char c = GPS.read();
   // if you want to debug, this is a good time to do it!
   if ((c) && (GPSECHO))
@@ -57,18 +75,54 @@ void loop()                     // run over and over again
   if (millis() - timer > 2000) {
     timer = millis(); // reset the timer
 
-    Serial.println(GPS.milliseconds);
-    Serial.print("Fix: "); Serial.println((int)GPS.fix);
-    if (GPS.fix) {
-      Serial.print("Location: ");
-      Serial.print(GPS.latitude, 4); 
-      // Serial.print(GPS.lat);
-      Serial.print(", ");
-      Serial.print(GPS.longitude, 4); 
-      // Serial.println(GPS.lon);
+    myFile = SD.open("test1.txt", FILE_WRITE);
 
-      Serial.print("Altitude: "); Serial.println(GPS.altitude);
-      Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
+    myFile.println(GPS.milliseconds);
+    myFile.print(F("Fix: ")); myFile.println((int)GPS.fix);
+
+    Serial.println(GPS.milliseconds);     
+    Serial.print(F("Fix: ")); Serial.println((int)GPS.fix);
+
+    // Serial.println(GPS.milliseconds);
+    // Serial.print("Fix: "); Serial.println((int)GPS.fix);
+    
+    // if (GPS.fix) {
+    //   Serial.print("Location: ");
+    //   Serial.print(GPS.latitude, 4); 
+    //   // Serial.print(GPS.lat);
+    //   Serial.print(", ");
+    //   Serial.print(GPS.longitude, 4); 
+    //   // Serial.println(GPS.lon);
+
+    //   Serial.print("Altitude: "); Serial.println(GPS.altitude);
+    //   Serial.print("Satellites: "); Serial.println((int)GPS.satellites);      
+    // }
+
+    if (GPS.fix) {
+      myFile.print(F("Location: "));
+        myFile.print(GPS.latitude, 4); 
+
+        Serial.print(F("Location: "));
+        Serial.print(GPS.latitude, 4);
+        // Serial.print(GPS.lat);
+        myFile.print(F(", "));
+        myFile.print(GPS.longitude, 4); 
+
+        Serial.print(F(", "));
+        Serial.print(GPS.longitude, 4); 
+        // Serial.println(GPS.lon);
+
+        myFile.print(F("Altitude: ")); myFile.println(GPS.altitude);
+        myFile.print(F("Satellites: ")); myFile.println((int)GPS.satellites);
+
+        Serial.print(F("Altitude: ")); Serial.println(GPS.altitude);
+        Serial.print(F("Satellites: ")); Serial.println((int)GPS.satellites);
+
+        myFile.println(F("--"));
+        Serial.println(F("--"));
     }
+    
+    myFile.close();
+
   }
 }

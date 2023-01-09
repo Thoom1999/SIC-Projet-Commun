@@ -3,6 +3,9 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
+#include <SD.h>
+#include <SPI.h>
+
 
 // Connections
 // ===========
@@ -33,7 +36,7 @@ void setup() {
   // also spit it out
   Serial.begin(9600);
   delay(2000);
-  Serial.println("Adafruit GPS library basic parsing test!");
+  Serial.println(F("Adafruit GPS library basic parsing test!"));
 
   // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
   GPS.begin(9600);
@@ -51,13 +54,13 @@ void setup() {
   // Ask for firmware version
   mySerial.println(PMTK_Q_RELEASE);
 
-  Serial.println("Orientation Sensor Test"); Serial.println("");
+  Serial.println(F("Orientation Sensor Test")); Serial.println(F(""));
 
   /* Initialise the sensor */
   if (!bno.begin())
   {
     /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    Serial.print(F("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!"));
     while (1);
   }
 
@@ -78,19 +81,19 @@ void loop() {
     timer = millis(); // reset the timer
 
     Serial.println(GPS.milliseconds);
-    Serial.print("Fix: "); Serial.println((int)GPS.fix);
+    Serial.print(F("Fix: ")); Serial.println((int)GPS.fix);
     if (GPS.fix) {
-      Serial.print("Location: ");
+      Serial.print(F("Location: "));
       Serial.print(GPS.latitude, 4); 
       // Serial.print(GPS.lat);
-      Serial.print(", ");
+      Serial.print(F(", "));
       Serial.print(GPS.longitude, 4); 
       // Serial.println(GPS.lon);
 
-      Serial.print("Altitude: "); Serial.println(GPS.altitude);
-      Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
+      Serial.print(F("Altitude: ")); Serial.println(GPS.altitude);
+      Serial.print(F("Satellites: ")); Serial.println((int)GPS.satellites);
 
-      Serial.println("--");
+      Serial.println(F("--"));
     }
 
     sensors_event_t orientationData, accelerometerData;
@@ -105,25 +108,25 @@ void loop() {
 void printEvent(sensors_event_t* event) {
   double x = -1000000, y = -1000000 , z = -1000000; //dumb values, easy to spot problem
   if (event->type == SENSOR_TYPE_ACCELEROMETER) {
-    Serial.print("Accl:");
+    Serial.print(F("Accl:"));
     x = event->acceleration.x;
     y = event->acceleration.y;
     z = event->acceleration.z;
   }
   else if (event->type == SENSOR_TYPE_ORIENTATION) {
-    Serial.print("Orient:");
+    Serial.print(F("Orient:"));
     x = event->orientation.x;
     y = event->orientation.y;
     z = event->orientation.z;
   }
   else {
-    Serial.print("Unk:");
+    Serial.print(F("Unk:"));
   }
 
-  Serial.print("\tx= ");
+  Serial.print(F("\tx= "));
   Serial.print(x);
-  Serial.print(" |\ty= ");
+  Serial.print(F(" |\ty= "));
   Serial.print(y);
-  Serial.print(" |\tz= ");
+  Serial.print(F(" |\tz= "));
   Serial.println(z);
 }
